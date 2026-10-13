@@ -1,0 +1,11 @@
+---
+// Tradeoff note: API_TOKEN embedded server-side into Access-gated page (same class as
+// template APIDocumentation). Backlog: httpOnly session cookie, drop token-from-browser.
+import Layout from '@/layouts/Layout.astro';
+import { ChatPanel } from '@/components/admin/chat-panel';
+
+const { API_TOKEN } = Astro.locals.runtime.env;
+---
+<Layout title="Chat">
+  <ChatPanel client:only="react" apiToken={API_TOKEN ?? ''} />
+</Layout>

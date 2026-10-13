@@ -1,0 +1,56 @@
+{
+  "name": "saas-admin-template",
+  "main": "./dist/index.js",
+  "assets": {
+    "directory": "./dist"
+  },
+  "compatibility_date": "2026-10-13",
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  },
+  "access": {
+    "dev": {
+      "aud": "my-app",
+      "identity": { "email": "admin@example.com" }
+    }
+  },
+  "upload_source_maps": true,
+  "vars": {
+    "EXAMPLE_VALUE": "example_value",
+    "CLOUDFLARE_GATEWAY_ID": "llm-gw"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "Orchestrator",
+        "class_name": "Orchestrator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["Orchestrator"]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "admin-db",
+      "database_id": "3009feae-2321-421c-97e8-181886710aa0"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "saas-admin-template-customer-workflow",
+      "binding": "CUSTOMER_WORKFLOW",
+      "class_name": "CustomerWorkflow"
+    }
+  ]
+}
