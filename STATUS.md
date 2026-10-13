@@ -67,3 +67,5 @@ Legend: `[L]` proven on this box (esbuild/tsc/json/grep) · `[D]` needs deploy/r
 ## DOC TRUTHS FIXED WITH THIS AUDIT
 - AGENTS.md rule #1: `gw_log_id` + `gateway()` methods marked aspirational (see Missing #4),
   not current behavior. KV rule flagged pending (Missing #5).
+- 2026-10-13 opencode pass: 8 skills vendored+discovered, `opencode.jsonc` filename fix
+  (dot-file ignored), 6 MCP registered. AGENTS.md/SOURCE.md updated.

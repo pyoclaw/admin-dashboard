@@ -5,8 +5,14 @@
   Fallback: `https://docs.mcp.cloudflare.com/mcp` (docs MCP) or `developers.cloudflare.com/<product>/llms.txt`.
 - Commands: `cf cli search "<task>"` -> pick match -> `<cmd> --help`. NEVER chain nested
   `--help` to explore. `cf schema <...>` for API request details.
-- Skills (repo `github.com/cloudflare/skills`): agents-sdk, durable-objects, wrangler,
-  workers-best-practices, cloudflare-one, sandbox-next. Install: `npx skills add <repo>`.
+- Skills: vendored in `.opencode/skills/` (agents-sdk, cf-cli, cloudflare,
+  cloudflare-one, durable-objects, sandbox-next, workers-best-practices, wrangler;
+  verified via `opencode debug skill`). Refresh: sparse-checkout
+  `github.com/cloudflare/skills` `skills/<name>` and copy. Do NOT rely on global install.
+- Project MCP config filename is `opencode.jsonc` (root, no dot). `.opencode.jsonc`
+  is IGNORED (verified: `opencode debug config` empty + `mcp list` zero until renamed).
+  After edits verify with `opencode debug config` + `opencode mcp list` (docs server
+  connects auth-free; rest need interactive OAuth via `opencode mcp auth <name>`).
 
 ## Tool split
 - `wrangler` (project, `wrangler.jsonc` — DO NOT migrate to `cloudflare.config.ts`):

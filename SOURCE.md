@@ -54,3 +54,15 @@
   Keep `wrangler.jsonc`; cf for API/resource ops. `cf` 1.0.0-beta.16 installed global on box.
 - wrangler: global 4.150.0 = npm latest; package.json range now `^4`; lockfile still
   4.136.1 (registry too slow from this box for `npm update`; CI fresh-install resolves ^4).
+
+## OpenCode tooling 2026-10-13 — verified with opencode 1.19.0 on box
+- Skills vendored from `github.com/cloudflare/skills` (sparse, depth-1) into
+  `.opencode/skills/`: agents-sdk, cf-cli, cloudflare, cloudflare-one,
+  durable-objects, sandbox-next, workers-best-practices, wrangler (1.1M).
+  Proven: `opencode debug skill` lists all 8 with project locations.
+  (Skill contents are newer than plan research: `@callable` RPC, Think/voice/codemode
+  refs, wrangler->cf-cli handoff, secret-put-as-deployment rule.)
+- BUG FOUND+FIXED: project MCP config must be `opencode.jsonc` (root). `.opencode.jsonc`
+  is silently ignored (`debug config` empty, `mcp list` zero). After rename: 6 servers
+  registered, docs connected auth-free, 5 need interactive OAuth. Deleted dot-file.
+- AGENTS.md skills/MCP sections corrected to match.
