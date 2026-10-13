@@ -1,10 +1,11 @@
-# Deploy: push to main ONLY. Runs in the `production` environment, which must have
-# required reviewers configured (repo Settings -> Environments -> production ->
-# Required reviewers). That is the approval gate: merges queue up, a human approves
-# the production deployment, then migrate + deploy run.
-# Required secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
-# Required Worker secrets (created once via `wrangler secret put`):
-# API_TOKEN, TEAM_DOMAIN, POLICY_AUD, CLOUDFLARE_API_TOKEN.
+# Deploy: push to main ONLY. Runs in the `production` environment; configure Required
+# reviewers there (Settings -> Environments -> production) and that IS the approval gate.
+# Repo root IS the app (no dashboard/ prefix).
+# Secrets: CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID.
+# Worker secrets (one-time, interactive): API_TOKEN, TEAM_DOMAIN, POLICY_AUD, CLOUDFLARE_API_TOKEN.
+#   npx wrangler secret put <NAME>
+# NOTE (AUDIT.md risk R5): once Access protects the Worker, CLI calls may need a Service
+# Auth policy or an Access bypass. Confirm on first run before assuming green.
 name: deploy
 
 on:
@@ -23,12 +24,9 @@ jobs:
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: dashboard/package-lock.json
       - name: Install
-        working-directory: dashboard
         run: npm ci --no-audit --no-fund
       - name: Remote D1 migrations (0001-0005)
-        working-directory: dashboard
         run: npm run db:migrate:remote
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -39,5 +37,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: dashboard
           command: deploy

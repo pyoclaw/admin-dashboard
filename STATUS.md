@@ -1,5 +1,9 @@
 # STATUS — done vs missing vs unclear (audited 2026-10-13, code-read + package-verify)
 
+> See `AUDIT.md` for the critical security/planning review. Top open risks:
+> R1 agent holds mutable infra token · P1 free-tier budget never computed ·
+> R5 Access-vs-CI deploy path unverified · P6 migrations never executed.
+
 Legend: `[L]` proven on this box (esbuild/tsc/json/grep) · `[D]` needs deploy/runtime proof.
 
 ## DONE [L]

@@ -1,5 +1,23 @@
 # ROADMAP — future goals, phased. $0 constraint holds unless marked $$.
 
+## BLOCKER PHASE (before EXE4) — from AUDIT.md
+- **B1 [R1 CRITICAL] Scope `CLOUDFLARE_API_TOKEN` to read-only**, and drop
+  `cloudflare-api` from the chat toolset (keep `ai-gateway` + `observability`).
+  Today any chat input can mutate the account via Code Mode `execute`.
+- **B2 [P1] Quantify the free-tier budget**: neurons/request x turns/day, KV writes,
+  D1 rows read. Must be a table with a hard daily turn cap. Project premise is
+  currently uncalculated.
+- **B3 [R5] Resolve Access vs CI/CLI**: Service Auth policy or Access bypass, so
+  `wrangler deploy` + `d1 migrations apply` don't die on first run.
+- **B4 [P6] Execute migrations once** (local or preview) and document recovery;
+  currently 0001-0005 have never run anywhere.
+- **B5 [R6] Retention cron** — move ahead of charts; unbounded `chat_logs` eventually
+  fails D1 writes account-wide.
+- **B6 [L1/L6] Verify model IDs + cost in the live catalog**, then decide
+  kimi-k2.6 vs glm-4.7-flash. The "budget" plan currently runs a frontier model.
+- **B7 [P4] Write requirements**: who reads chat logs, what decision the dashboard
+  drives, what triggers an alert. No user stories exist today.
+
 ## EXE4 — Pi gadget (embedded durable coding runs)
 - `PiHarness` beta (`agents/harness/pi`, changelog 2026-10-02): `src/agents/PiAgent.ts`
   parent DO + `pi-durable@1.x` + `pi-ai@0.83.x`, model kimi-k2.7-code.
