@@ -1,0 +1,42 @@
+# CI: checks on every PR. No secrets needed except read-only Cloudflare auth for dry-run.
+# Approval/merge flow: PR -> required checks (this file) -> human review -> merge queue
+# -> push to main triggers deploy.yml (production environment = approval gate).
+name: ci
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - name: Install
+        working-directory: dashboard
+        run: npm ci --no-audit --no-fund
+      - name: Typecheck
+        working-directory: dashboard
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: Bundle gates (agents entry, chat UI, middleware, wrapper)
+        working-directory: dashboard
+        run: |
+          npx esbuild --bundle src/agents/agents.js --format=esm --platform=neutral --outfile=/dev/null
+          npx esbuild --bundle src/components/admin/chat-panel.tsx --format=esm --platform=browser --jsx=automatic --outfile=/dev/null
+          npx esbuild --bundle src/middleware.ts --format=esm --platform=neutral --packages=external --external:astro:middleware --outfile=/dev/null
+      - name: Build (Astro SSR)
+        working-directory: dashboard
+        run: npm run build
+      - name: Deploy dry-run (packaging + config validation, deploys nothing)
+        working-directory: dashboard
+        run: npm run wrangler:wrapper && npx wrangler deploy --dry-run
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
