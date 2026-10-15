@@ -1,5 +1,8 @@
 # CI: PR gate. Repo root IS the app (no dashboard/ prefix — that was a bug, fixed).
 # Blocking gates: astro build (real gate), bundle gates, deploy --dry-run.
+# Removed 2026-10-15: the agents.js esbuild gate (--platform=neutral) could never
+# resolve node:async_hooks/node:crypto from agents/nanoid and never executed; the
+# `wrangler deploy --dry-run` step below is the real workerd-conditioned packaging check.
 # typecheck:owned blocks on files we authored (post astro sync for astro:middleware types).
 # typecheck:full is informational: upstream template ships ~109 pre-existing errors
 # (tanstack-table generics, D1 Serializable, implicit-any in its own routes). See AUDIT.md.
@@ -28,9 +31,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: npm run typecheck:full
-      - name: Bundle gates (agents entry, chat UI, middleware)
+      - name: Bundle gates (chat UI, middleware)
         run: |
-          npx esbuild --bundle src/agents/agents.js --format=esm --platform=neutral --outfile=/dev/null
           npx esbuild --bundle src/components/admin/chat-panel.tsx --format=esm --platform=browser --jsx=automatic --outfile=/dev/null
           npx esbuild --bundle src/middleware.ts --format=esm --platform=neutral --packages=external --external:astro:middleware --outfile=/dev/null
       - name: Build (Astro SSR)

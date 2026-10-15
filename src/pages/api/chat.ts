@@ -1,13 +1,14 @@
 // SOURCE: adapted from github.com/cloudflare/templates/llm-chat-app-template/src/index.ts (MIT)
 // Deltas: Astro route shape (locals.runtime.env), MODEL_ID kimi-k2.6 (llama-3.1-8b deprecated
 // 2026-05-30), max_tokens 512 free-tier cap, AI Gateway enabled, D1 chat_logs tee via waitUntil.
+import type { APIRoute } from "astro";
 import { validateApiTokenResponse } from "@/lib/api";
 
 const MODEL_ID = "@cf/moonshotai/kimi-k2.6";
 const SYSTEM_PROMPT =
   "You are a helpful, friendly assistant. Provide concise and accurate responses.";
 
-export async function POST({ locals, request }) {
+export const POST: APIRoute = async ({ locals, request }) => {
   const { API_TOKEN, AI, DB, CLOUDFLARE_GATEWAY_ID } = locals.runtime.env;
   const ctx = locals.runtime.ctx;
 
@@ -16,7 +17,10 @@ export async function POST({ locals, request }) {
 
   try {
     const { messages = [], session_id } = (await request.json()) as {
-      messages: { role: string; content: string }[];
+      messages: {
+        role: "system" | "user" | "assistant";
+        content: string;
+      }[];
       session_id?: string;
     };
 
@@ -125,4 +129,4 @@ export async function POST({ locals, request }) {
       headers: { "content-type": "application/json" },
     });
   }
-}
+};
