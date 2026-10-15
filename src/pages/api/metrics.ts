@@ -19,5 +19,5 @@ export const GET: APIRoute = async ({ locals, request }) => {
   ).all();
   const total = await DB.prepare(`SELECT COUNT(*) AS n FROM chat_logs`).first();
 
-  return Response.json({ daily: daily.results, models: models.results, total });
+  return Response.json({ daily: daily.results, models: models.results, total: total?.n ?? 0 });
 };
