@@ -1,7 +1,8 @@
 // Aggregates over chat_logs for /admin charts. Token-authed like other /api routes.
+import type { APIRoute } from "astro";
 import { validateApiTokenResponse } from "@/lib/api";
 
-export async function GET({ locals, request }) {
+export const GET: APIRoute = async ({ locals, request }) => {
   const { API_TOKEN, DB } = locals.runtime.env;
 
   const invalidTokenResponse = await validateApiTokenResponse(request, API_TOKEN);
@@ -18,5 +19,5 @@ export async function GET({ locals, request }) {
   ).all();
   const total = await DB.prepare(`SELECT COUNT(*) AS n FROM chat_logs`).first();
 
-  return Response.json({ daily: daily.results, models: models.results, total });
-}
+  return Response.json({ daily: daily.results, models: models.results, total: total?.n ?? 0 });
+};

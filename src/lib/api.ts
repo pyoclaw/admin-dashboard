@@ -1,20 +1,32 @@
-const safeCompare = async (a, b) => {
+const safeCompare = async (a: string, b: string) => {
   if (typeof a !== "string" || typeof b !== "string") return false;
   const encoder = new TextEncoder();
   const aEncoded = encoder.encode(a);
   const bEncoded = encoder.encode(b);
   if (aEncoded.length !== bEncoded.length) return false;
-  return await crypto.subtle.timingSafeEqual(aEncoded, bEncoded);
+  // worker-configuration.d.ts declares `abstract class SubtleCrypto`, which collides
+  // with lib.dom's interface under skipLibCheck and hides the workerd-only member
+  // (worker-configuration.d.ts:1158); cast locally rather than edit generated types.
+  const subtle = crypto.subtle as unknown as {
+    timingSafeEqual(
+      a: ArrayBuffer | ArrayBufferView,
+      b: ArrayBuffer | ArrayBufferView,
+    ): boolean;
+  };
+  return subtle.timingSafeEqual(aEncoded, bEncoded);
 };
 
-export const validateApiTokenResponse = async (request, apiToken) => {
+export const validateApiTokenResponse = async (
+  request: Request,
+  apiToken: string,
+) => {
   const successful = await validateApiToken(request, apiToken);
   if (!successful) {
     return Response.json({ message: "Invalid API token" }, { status: 401 });
   }
 };
 
-export const validateApiToken = async (request, apiToken) => {
+export const validateApiToken = async (request: Request, apiToken: string) => {
   try {
     if (!request?.headers?.get) {
       console.error("Invalid request object");
@@ -52,7 +64,7 @@ export const validateApiToken = async (request, apiToken) => {
   }
 };
 
-export const getCustomers = async (baseUrl, apiToken) => {
+export const getCustomers = async (baseUrl: string, apiToken: string) => {
   const url = `${baseUrl}/api/customers`;
   const response = await fetch(url, {
     headers: {
@@ -60,7 +72,7 @@ export const getCustomers = async (baseUrl, apiToken) => {
     },
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { customers: unknown[] };
     return {
       customers: data.customers,
       success: true,
@@ -74,14 +86,18 @@ export const getCustomers = async (baseUrl, apiToken) => {
   }
 };
 
-export const getCustomer = async (id, baseUrl, apiToken) => {
+export const getCustomer = async (
+  id: string,
+  baseUrl: string,
+  apiToken: string,
+) => {
   const response = await fetch(baseUrl + "/api/customers/" + id, {
     headers: {
       Authorization: `Bearer ${apiToken}`,
     },
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { customer: unknown };
     return {
       customer: data.customer,
       success: true,
@@ -95,7 +111,11 @@ export const getCustomer = async (id, baseUrl, apiToken) => {
   }
 };
 
-export const createCustomer = async (baseUrl, apiToken, customer) => {
+export const createCustomer = async (
+  baseUrl: string,
+  apiToken: string,
+  customer: Record<string, unknown>,
+) => {
   const response = await fetch(baseUrl + "/api/customers", {
     method: "POST",
     headers: {
@@ -105,7 +125,7 @@ export const createCustomer = async (baseUrl, apiToken, customer) => {
     body: JSON.stringify(customer),
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { customer: unknown };
     return {
       customer: data.customer,
       success: true,
@@ -119,7 +139,11 @@ export const createCustomer = async (baseUrl, apiToken, customer) => {
   }
 };
 
-export const createSubscription = async (baseUrl, apiToken, subscription) => {
+export const createSubscription = async (
+  baseUrl: string,
+  apiToken: string,
+  subscription: Record<string, unknown>,
+) => {
   const response = await fetch(baseUrl + "/api/subscriptions", {
     method: "POST",
     headers: {
@@ -129,7 +153,7 @@ export const createSubscription = async (baseUrl, apiToken, subscription) => {
     body: JSON.stringify(subscription),
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { subscription: unknown };
     return {
       subscription: data.subscription,
       success: true,
@@ -143,14 +167,14 @@ export const createSubscription = async (baseUrl, apiToken, subscription) => {
   }
 };
 
-export const getSubscriptions = async (baseUrl, apiToken) => {
+export const getSubscriptions = async (baseUrl: string, apiToken: string) => {
   const response = await fetch(baseUrl + "/api/subscriptions", {
     headers: {
       Authorization: `Bearer ${apiToken}`,
     },
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { subscriptions: unknown[] };
     return {
       subscriptions: data.subscriptions,
       success: true,
@@ -164,14 +188,18 @@ export const getSubscriptions = async (baseUrl, apiToken) => {
   }
 };
 
-export const getSubscription = async (id, baseUrl, apiToken) => {
+export const getSubscription = async (
+  id: string,
+  baseUrl: string,
+  apiToken: string,
+) => {
   const response = await fetch(baseUrl + "/api/subscriptions/" + id, {
     headers: {
       Authorization: `Bearer ${apiToken}`,
     },
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as { subscription: unknown };
     return {
       subscription: data.subscription,
       success: true,
@@ -185,20 +213,25 @@ export const getSubscription = async (id, baseUrl, apiToken) => {
   }
 };
 
-export const getCustomerSubscriptions = async (baseUrl, apiToken) => {
+export const getCustomerSubscriptions = async (
+  baseUrl: string,
+  apiToken: string,
+) => {
   const response = await fetch(baseUrl + "/api/customer_subscriptions", {
     headers: {
       Authorization: `Bearer ${apiToken}`,
     },
   });
   if (response.ok) {
-    const data = await response.json();
+    const data = (await response.json()) as {
+      customer_subscriptions: unknown[];
+    };
     return {
       customer_subscriptions: data.customer_subscriptions,
       success: true,
     };
   } else {
-    console.error("Failed to fetch customer subscriptions");
+    console.error("Failed to run customer workflow");
     return {
       customer_subscriptions: [],
       success: false,
@@ -206,7 +239,11 @@ export const getCustomerSubscriptions = async (baseUrl, apiToken) => {
   }
 };
 
-export const runCustomerWorkflow = async (id, baseUrl, apiToken) => {
+export const runCustomerWorkflow = async (
+  id: string,
+  baseUrl: string,
+  apiToken: string,
+) => {
   const response = await fetch(baseUrl + `/api/customers/${id}/workflow`, {
     headers: {
       Authorization: `Bearer ${apiToken}`,
@@ -214,12 +251,12 @@ export const runCustomerWorkflow = async (id, baseUrl, apiToken) => {
     method: "POST",
   });
   if (response.ok) {
-    const data = await response.json();
+    await response.json();
     return {
       success: true,
     };
   } else {
-    console.error("Failed to fetch customer subscriptions");
+    console.error("Failed to run customer workflow");
     return {
       success: false,
     };
