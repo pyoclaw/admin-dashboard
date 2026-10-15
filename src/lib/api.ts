@@ -231,7 +231,7 @@ export const getCustomerSubscriptions = async (
       success: true,
     };
   } else {
-    console.error("Failed to fetch customer subscriptions");
+    console.error("Failed to run customer workflow");
     return {
       customer_subscriptions: [],
       success: false,
@@ -256,7 +256,7 @@ export const runCustomerWorkflow = async (
       success: true,
     };
   } else {
-    console.error("Failed to fetch customer subscriptions");
+    console.error("Failed to run customer workflow");
     return {
       success: false,
     };
