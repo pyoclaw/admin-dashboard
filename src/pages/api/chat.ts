@@ -2,12 +2,17 @@
 // Deltas: Astro route shape (locals.runtime.env), MODEL_ID kimi-k2.6 (llama-3.1-8b deprecated
 // 2026-05-30), max_tokens 512 free-tier cap, AI Gateway enabled, D1 chat_logs tee via waitUntil.
 import { validateApiTokenResponse } from "@/lib/api";
+import type { APIRoute } from "astro";
 
 const MODEL_ID = "@cf/moonshotai/kimi-k2.6";
 const SYSTEM_PROMPT =
   "You are a helpful, friendly assistant. Provide concise and accurate responses.";
 
-export async function POST({ locals, request }) {
+// Wire format of the upstream Cloudflare template; role must be a literal union
+// to satisfy the typed `Ai.run(model, ChatCompletionsInput)` overload.
+type ChatRole = "system" | "user" | "assistant";
+
+export const POST: APIRoute = async ({ locals, request }) => {
   const { API_TOKEN, AI, DB, CLOUDFLARE_GATEWAY_ID } = locals.runtime.env;
   const ctx = locals.runtime.ctx;
 
@@ -16,7 +21,7 @@ export async function POST({ locals, request }) {
 
   try {
     const { messages = [], session_id } = (await request.json()) as {
-      messages: { role: string; content: string }[];
+      messages: { role: ChatRole; content: string }[];
       session_id?: string;
     };
 

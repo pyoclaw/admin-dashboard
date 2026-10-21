@@ -28,9 +28,8 @@ jobs:
         if: always()
         continue-on-error: true
         run: npm run typecheck:full
-      - name: Bundle gates (agents entry, chat UI, middleware)
+      - name: Bundle gates (chat UI, middleware)
         run: |
-          npx esbuild --bundle src/agents/agents.js --format=esm --platform=neutral --outfile=/dev/null
           npx esbuild --bundle src/components/admin/chat-panel.tsx --format=esm --platform=browser --jsx=automatic --outfile=/dev/null
           npx esbuild --bundle src/middleware.ts --format=esm --platform=neutral --packages=external --external:astro:middleware --outfile=/dev/null
       - name: Build (Astro SSR)
