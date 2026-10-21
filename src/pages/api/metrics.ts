@@ -1,7 +1,8 @@
 // Aggregates over chat_logs for /admin charts. Token-authed like other /api routes.
 import { validateApiTokenResponse } from "@/lib/api";
+import type { APIRoute } from "astro";
 
-export async function GET({ locals, request }) {
+export const GET: APIRoute = async ({ locals, request }) => {
   const { API_TOKEN, DB } = locals.runtime.env;
 
   const invalidTokenResponse = await validateApiTokenResponse(request, API_TOKEN);
